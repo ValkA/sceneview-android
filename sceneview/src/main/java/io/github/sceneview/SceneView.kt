@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaRecorder
 import android.opengl.EGLContext
-import android.os.Build
 import android.util.AttributeSet
 import android.view.Choreographer
 import android.view.MotionEvent
@@ -13,7 +12,6 @@ import android.view.SurfaceView
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -560,6 +558,9 @@ open class SceneView @JvmOverloads constructor(
     private var defaultCameraNode: CameraNode? = null
     private var defaultMainLight: LightNode? = null
 
+    private var targetFps = 10
+    private val minFrameTimeNanos = 1_000_000_000L / targetFps
+
     init {
         _mainLightNode?.let { addNode(it) }
 
@@ -720,6 +721,11 @@ open class SceneView @JvmOverloads constructor(
         modelLoader.updateLoad()
 
         childNodes.forEach { it.onFrame(frameTimeNanos) }
+
+        lastFrameTimeNanos?.let { last ->
+            val delta = frameTimeNanos - last
+            if (delta < minFrameTimeNanos) return
+        }
 
         if (uiHelper.isReadyToRender) {
 //            transformManager.openLocalTransformTransaction()
@@ -997,14 +1003,14 @@ open class SceneView @JvmOverloads constructor(
             engine.createView().apply {
                 // On mobile, better use lower quality color buffer
                 renderQuality = renderQuality.apply {
-                    hdrColorBuffer = QualityLevel.MEDIUM
+                    hdrColorBuffer = QualityLevel.LOW
                 }
                 // Dynamic resolution often helps a lot
                 dynamicResolutionOptions = dynamicResolutionOptions.apply {
                     // Disabled cause generating some camera stream wrong scaling ratio
-                    enabled = false
+                    enabled = true
                     homogeneousScaling = true
-                    quality = QualityLevel.MEDIUM
+                    quality = QualityLevel.LOW
                 }
 
                 // MSAA is needed with dynamic resolution MEDIUM
@@ -1013,7 +1019,7 @@ open class SceneView @JvmOverloads constructor(
                 }
 
                 // FXAA is pretty cheap and helps a lot
-                antiAliasing = AntiAliasing.FXAA
+                antiAliasing = AntiAliasing.NONE//FXAA
                 // Ambient occlusion is the cheapest effect that adds a lot of quality
                 ambientOcclusionOptions = ambientOcclusionOptions.apply {
                     enabled = false
@@ -1062,7 +1068,7 @@ open class SceneView @JvmOverloads constructor(
                     environmentLoader.context.assets.readBuffer(
                         fileLocation = "environments/neutral/neutral_ibl.ktx"
                     ),
-                )
+                ).indirectLight
             )
 
         fun createEnvironment(

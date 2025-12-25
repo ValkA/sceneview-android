@@ -92,10 +92,13 @@ dependencies {
     api 'dev.romainguy:kotlin-math:1.5.3'
 
     // Filament
-    def filament_version = '1.56.0'
-    api "com.google.android.filament:filament-android:$filament_version"
-    api "com.google.android.filament:gltfio-android:$filament_version"
-    api "com.google.android.filament:filament-utils-android:$filament_version"
+    // compiled from main branch, commit hash bc83ffd. Newest release that day was 1.63.0.
+//    api files('libs/filament-android-release.aar')
+//    api files('libs/gltfio-android-release.aar')
+//    api files('libs/filament-utils-android-release.aar')
+    api files('libs/filament-v1.63.0-android.aar')
+    api files('libs/gltfio-v1.63.0-android.aar')
+    api files('libs/filament-utils-v1.63.0-android.aar')
 
     // Fuel
     implementation "com.github.kittinunf.fuel:fuel:2.3.1"

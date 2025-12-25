@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
         instructionText = findViewById(R.id.instructionText)
         loadingView = findViewById(R.id.loadingView)
-        sceneView = findViewById<ARSceneView?>(R.id.sceneView).apply {
+        sceneView = findViewById<ARSceneView?>(R.id.sceneView)!!.apply {
             lifecycle = this@MainActivity.lifecycle
             planeRenderer.isEnabled = true
             configureSession { session, config ->
