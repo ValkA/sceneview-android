@@ -18,7 +18,7 @@ coroutines = "1.10.2"
 kotlinMath = "1.6.0"
 
 arCore = "1.51.0"
-filament = "1.66.0"
+filament = "1.68.2"
 fuel = "3.0.0-alpha04"
 googleMaterial = "1.13.0"
 media3 = "1.8.0"
