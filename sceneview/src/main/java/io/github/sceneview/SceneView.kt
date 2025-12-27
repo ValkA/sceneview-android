@@ -70,7 +70,6 @@ import io.github.sceneview.utils.OpenGL
 import io.github.sceneview.utils.SurfaceMirrorer
 import io.github.sceneview.utils.intervalSeconds
 import io.github.sceneview.utils.readBuffer
-import io.github.sceneview.utils.setKeepScreenOn
 
 typealias Entity = Int
 typealias EntityInstance = Int
@@ -719,11 +718,7 @@ open class SceneView @JvmOverloads constructor(
     protected open fun onFrame(frameTimeNanos: Long) {
         modelLoader.updateLoad()
 
-        childNodes.forEach { it.onFrame(frameTimeNanos) }
-
         if (uiHelper.isReadyToRender) {
-//            transformManager.openLocalTransformTransaction()
-
             // Only update the camera manipulator if a touch has been made
             cameraManipulator?.let { manipulator ->
                 if (lastTouchEvent != null) {
@@ -733,12 +728,10 @@ open class SceneView @JvmOverloads constructor(
                 }
             }
 
-            onFrame?.invoke(frameTimeNanos)
-
-//            transformManager.commitLocalTransformTransaction()
-
             // Render the scene, unless the renderer wants to skip the frame.
             if (renderer.beginFrame(swapChain!!, frameTimeNanos)) {
+                onFrame?.invoke(frameTimeNanos)
+                childNodes.forEach { it.onFrame(frameTimeNanos) }
                 renderer.render(view)
                 surfaceMirrorer?.onFrame(this)
                 renderer.endFrame()
